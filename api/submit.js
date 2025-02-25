@@ -1,4 +1,4 @@
-// const JSONBIN_SECRET = process.env.JSONBIN_SECRET;
+const JSONBIN_SECRET = process.env.JSONBIN_SECRET;
 
 export default async (req, res) => {
   // 设置CORS
@@ -24,7 +24,7 @@ export default async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Master-Key': "$2a$10$Tw1jAHxPvXgseWfxwwN4ZONgb4DXNAVq0GwWUZMEPwivX8SrvA9iG",
+        'X-Master-Key': JSONBIN_SECRET,
         'X-Collection-Id': '67bda62ce41b4d34e49bce3f' // 免费收集箱ID
       },
       body: JSON.stringify(data)
