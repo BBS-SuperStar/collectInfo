@@ -1,30 +1,32 @@
-// 需要安装依赖包（部署时Vercel会自动安装）
-// const airtable = require('airtable'); // 可选：如果需要保存到Airtable
-
-module.exports = async (req, res) => {
+export default async (req, res) => {
   // 设置CORS头
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST');
   res.setHeader('Content-Type', 'application/json');
 
   try {
-    const { name, phone, occupation } = req.body;
-
-    // 数据验证
-    if (!name || !phone) {
-      return res.status(400).json({ error: '姓名和电话为必填项' });
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    // 这里可以添加数据库保存逻辑
-    console.log("姓名：" + name + ", 电话：" + phone + ", 职业：" + occupation);
+    // 获取提交数据
+    const data = req.body;
+
+    // 简单验证
+    if (!data.name || !data.phone) {
+      return res.status(400).json({ error: '请填写完整信息' });
+    }
+
+    // 这里可以添加简单处理逻辑
+    console.log('收到提交：', data);
+
     return res.status(200).json({
-      status: 'success',
-      message: '数据已接收'
+      success: true,
+      message: '提交成功'
     });
 
   } catch (error) {
     return res.status(500).json({
-      error: '服务器内部错误'
+      error: '服务器错误'
     });
   }
 };
