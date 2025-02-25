@@ -157,7 +157,6 @@
             // 获取表单数据
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
-
             // 前端验证
             if (!validateForm(data)) return;
 
@@ -216,6 +215,7 @@
 
         // 提示显示函数
         function showAlert(message, isError = false) {
+            console.log("提示框");
             alertBox.textContent = message;
             alertBox.className = `alert ${isError ? 'error' : ''} show`;
 

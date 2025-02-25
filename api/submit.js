@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
     }
 
     // 这里可以添加数据库保存逻辑
-
+    console.log("姓名：" + name + ", 电话：" + phone + ", 职业：" + occupation);
     return res.status(200).json({
       status: 'success',
       message: '数据已接收'
