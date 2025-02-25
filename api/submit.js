@@ -1,32 +1,49 @@
+// const JSONBIN_SECRET = process.env.JSONBIN_SECRET;
+
 export default async (req, res) => {
-  // 设置CORS头
+  // 设置CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Content-Type', 'application/json');
 
   try {
+    // 验证请求方法
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    // 获取提交数据
+    // 获取并验证数据
     const data = req.body;
 
-    // 简单验证
-    if (!data.name || !data.phone) {
-      return res.status(400).json({ error: '请填写完整信息' });
+    // 手机号验证
+    if (!/^1[3-9]\d{9}$/.test(data.phone)) {
+      return res.status(400).json({ error: '无效的手机号码' });
     }
 
-    // 这里可以添加简单处理逻辑
-    console.log('收到提交：', data);
+    // 存储到JSONBin.io
+    const binResponse = await fetch('https://api.jsonbin.io/v3/b', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': "$2a$10$Tw1jAHxPvXgseWfxwwN4ZONgb4DXNAVq0GwWUZMEPwivX8SrvA9iG",
+        'X-Collection-Id': '67bda62ce41b4d34e49bce3f' // 免费收集箱ID
+      },
+      body: JSON.stringify(data)
+    });
+
+    const binData = await binResponse.json();
+
+    if (!binResponse.ok) {
+      throw new Error('数据存储失败');
+    }
 
     return res.status(200).json({
       success: true,
-      message: '提交成功'
+      recordId: binData.metadata.id
     });
 
   } catch (error) {
     return res.status(500).json({
-      error: '服务器错误'
+      error: error.message || '服务器错误'
     });
   }
 };
