@@ -138,14 +138,16 @@
                 <input type="text" id="occupation" name="occupation" required>
             </div>
 
-            <button type="submit">提交信息</button>
+            <button type="submit" id="submitBtn">
+                <span class="btn-text">提交信息</span>
+            </button>
         </form>
     </div>
 
     <script>
         const form = document.getElementById('myForm');
         const alertBox = document.getElementById('alert');
-        const submitBtn = document.getElementById('submit');
+        const submitBtn = document.getElementById('submitBtn');
         const btnText = submitBtn.querySelector('.btn-text');
 
         let isSubmitting = false;
