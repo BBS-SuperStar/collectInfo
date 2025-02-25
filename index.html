@@ -6,6 +6,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>司机信息登记</title>
     <style>
+        /* 新增提示样式 */
+        .alert {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 25px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .alert.error {
+            background: #f44336;
+        }
+
+        .alert.show {
+            opacity: 1;
+        }
+
+        /* 加载动画 */
+        .loader {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #fff;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            animation: rotation 1s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -71,9 +118,11 @@
 </head>
 
 <body>
+    <!-- 在表单容器后添加提示框 -->
+    <div class="alert" id="alert"></div>
     <div class="form-container">
         <!-- 修改form的action -->
-        <form method="POST" action="/api/submit">
+        <form method="POST" action="/api/submit" id="myForm">
             <div class="form-group">
                 <label for="name">姓名</label>
                 <input type="text" id="name" name="name" required>
@@ -92,6 +141,89 @@
             <button type="submit">提交信息</button>
         </form>
     </div>
+
+    <script>
+        const form = document.getElementById('myForm');
+        const alertBox = document.getElementById('alert');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = submitBtn.querySelector('.btn-text');
+
+        let isSubmitting = false;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (isSubmitting) return;
+
+            // 获取表单数据
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            // 前端验证
+            if (!validateForm(data)) return;
+
+            try {
+                isSubmitting = true;
+                updateButtonState(true);
+
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || '提交失败');
+                }
+
+                showAlert('提交成功！');
+                form.reset();
+            } catch (error) {
+                showAlert(error.message || '请求失败，请重试', true);
+            } finally {
+                isSubmitting = false;
+                updateButtonState(false);
+            }
+        });
+
+        // 表单验证函数
+        function validateForm(data) {
+            if (!data.name.trim()) {
+                showAlert('请输入姓名', true);
+                return false;
+            }
+
+            if (!/^1[3-9]\d{9}$/.test(data.phone)) {
+                showAlert('请输入有效的手机号码', true);
+                return false;
+            }
+
+            return true;
+        }
+
+        // 按钮状态更新
+        function updateButtonState(isLoading) {
+            if (isLoading) {
+                submitBtn.disabled = true;
+                btnText.innerHTML = `<div class="loader"></div> 提交中...`;
+            } else {
+                submitBtn.disabled = false;
+                btnText.textContent = '提交信息';
+            }
+        }
+
+        // 提示显示函数
+        function showAlert(message, isError = false) {
+            alertBox.textContent = message;
+            alertBox.className = `alert ${isError ? 'error' : ''} show`;
+
+            setTimeout(() => {
+                alertBox.classList.remove('show');
+            }, 3000);
+        }
+    </script>
 </body>
 
 </html>
