@@ -19,6 +19,7 @@ export default async (req, res) => {
       return res.status(400).json({ error: '无效的手机号码' });
     }
 
+    console.log('Sending data to JSONBin:', data);
     // 存储到JSONBin.io
     const binResponse = await fetch('https://api.jsonbin.io/v3/b', {
       method: 'POST',
@@ -29,8 +30,11 @@ export default async (req, res) => {
       },
       body: JSON.stringify(data)
     });
+    console.log('JSONBIN_SECRET:', process.env.JSONBIN_SECRET);
+    console.log('JSONBin Response:', binResponse.status, binResponse.statusText);
 
     const binData = await binResponse.json();
+    console.log('JSONBin Data:', binData);
 
     if (!binResponse.ok) {
       throw new Error('数据存储失败');
