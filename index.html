@@ -137,18 +137,24 @@
                     occupation: form.occupation.value,
                     timestamp: new Date().toISOString()
                 };
-
-                const response = await fetch('/api/submit', {
+                const binResponse = await fetch('https://api.jsonbin.io/v3/b', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': "$2a$10$Tw1jAHxPvXgseWfxwwN4ZONgb4DXNAVq0GwWUZMEPwivX8SrvA9iG",
+                        'X-Collection-Id': '67bda62ce41b4d34e49bce3f' // 免费收集箱ID
                     },
                     body: JSON.stringify(formData)
                 });
+                console.log('JSONBIN_SECRET:', process.env.JSONBIN_SECRET);
+                console.log('JSONBin Response:', binResponse.status, binResponse.statusText);
 
-                const result = await response.json();
+                const binData = await binResponse.json();
+                console.log('JSONBin Data:', binData);
 
-                if (!response.ok) throw new Error(result.error || '提交失败');
+                if (!binResponse.ok) {
+                    throw new Error('数据存储失败');
+                }
 
                 showAlert('提交成功！');
                 form.reset();
